@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace="매퍼 인터페이스 경로" --> 
+<mapper namespace="com.aloha.board.mapper.BoardMapper">
+
+
+    <resultMap id="boardResultMap" type="Boards">
+        <id property="no" column="no" />
+        <result property="id" column="id" />
+        <result property="title" column="title" />
+        <result property="writer" column="writer" />
+        <result property="content" column="content" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+        <association property="file" column="no" javaType="Files" select="selectMainFile"></association>
+    </resultMap>
+
+    <select id="list" resultMap="boardResultMap">
+        SELECT *
+        FROM boards
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="selectMainFile" resultType="Files">
+        SELECT *
+        FROM filess
+        WHERE p_no = #{no}
+            AND p_table = 'boards'
+            AND type = 'MAIN'
+    </select>
+
+    <!-- <resultMap id="boardResultMap" type="Boards">
+        <id property="no" column="no" />
+        <result property="id" column="id" />
+        <result property="title" column="title" />
+        <result property="writer" column="writer" />
+        <result property="content" column="content" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+        <association property="file" javaType="Files">
+            <result property="id" column="file_id" />
+            <result property="fileName" column="file_name" />
+            <result property="filePath" column="file_path" />
+        </association>
+    </resultMap>
+
+
+    <select id="list" resultMap="boardResultMap">
+        SELECT 
+            b.no, b.id, b.title, b.writer, b.content, 
+            b.created_at, b.updated_at, 
+            f.id AS file_id, f.file_name AS file_name, f.file_path AS file_path
+        FROM boards b
+        LEFT JOIN filess f
+        ON f.p_no = b.no AND f.type = 'MAIN'
+        ORDER BY b.no DESC
+    </select> -->
+
+
+    <!-- order by status asc, seq asc -->
+
+    <select id="select" resultType="Boards">
+        SELECT *
+        FROM boards
+        WHERE no = #{no}
+    </select>
+    <select id="selectById" resultType="Boards">
+        SELECT *
+        FROM boards
+        WHERE id = #{id}
+    </select>
+
+    <!-- 자동 증가된 boards 의 no를 Boards 객체의 no 변수에 넣어준다. -->
+    <insert id="insert" parameterType="Boards" useGeneratedKeys="true" keyProperty="no">
+        INSERT INTO boards (id,title,writer,content)
+        VALUES (#{id},#{title},#{writer},#{content})
+    </insert>
+
+    <update id="update">
+        UPDATE boards
+        <set>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="writer != null">
+                writer = #{writer},
+            </if>
+            <if test="content != null">
+                content = #{content},
+            </if>
+                updated_at = now()
+        </set>
+        WHERE no = #{no}
+    </update>
+
+    <update id="updateById">
+        UPDATE boards
+        <set>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="writer != null">
+                writer = #{writer},
+            </if>
+            <if test="content != null">
+                content = #{content},
+            </if>
+                updated_at = now()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM boards
+        WHERE no = #{no}
+    </delete>
+    
+    <delete id="deleteById">
+        DELETE FROM boards
+        WHERE id = #{id}
+    </delete>
+
+
+
+</mapper>
